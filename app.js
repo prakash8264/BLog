@@ -30,11 +30,20 @@ app.use(checkForAuthenticationCookie("token"))
 app.use(express.static(path.resolve('./public')));
 
 app.get('/', async (req, res) => {
-    const allBlogs = (await Blog.find({}));
-    return res.render('home', {
-        user: req.user,
-        blogs: allBlogs,
-    });
+    try {
+        const allBlogs = await Blog.find({});
+        return res.render('home', {
+            user: req.user,
+            blogs: allBlogs,
+        });
+    } catch (error) {
+        console.error("Error fetching blogs:", error);
+        return res.render('home', {
+            user: req.user,
+            blogs: [],
+            error: "Database connection error",
+        });
+    }
 });
 
 app.use('/user',userRoute)
